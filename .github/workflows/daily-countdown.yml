@@ -1,0 +1,17 @@
+name: Ежедневное напоминание о Турции
+env:
+  TZ: Europe/Moscow
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # 10:00 МСК = 7:00 UTC
+  workflow_dispatch: # Возможность запуска вручную
+
+jobs:
+  send-message:
+    runs-on: ubuntu-latest
+    name: Вызов Vercel API
+    steps:
+      - name: Запрос к Vercel API
+        run: |
+          curl -v "https://schedular-vacating-hj8fcq7ba-nickkkis-projects.vercel.app/api/countdown"
