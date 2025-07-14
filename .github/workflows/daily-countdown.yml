@@ -4,7 +4,7 @@ env:
 
 on:
   schedule:
-    - cron: '0 7 * * *'  # 15:52 МСК = 7:00 UTC
+    - cron: '0 7 * * *'  # 15:55 МСК = 12:55 UTC
   workflow_dispatch: # Возможность запуска вручную
 
 jobs:
