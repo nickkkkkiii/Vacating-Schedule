@@ -4,7 +4,6 @@ const { Telegraf } = require('telegraf');
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const TARGET_DATE_STR = "2025-10-11";
-const BASE_IMAGE_URL = "https://your-app.vercel.app/images";
 
 // Инициализируем бота
 const bot = new Telegraf(BOT_TOKEN);
@@ -206,8 +205,13 @@ if (diffDays > 90) {
   message = `🌴☀️ Поездка в Турцию уже началась! Пора отдыхать 🌴✈️`;
 }
 
-    await bot.telegram.sendMessage(CHAT_ID, message);
-    return res.status(200).send("Сообщение отправлено");
+    // Формируем URL картинки по diffDays
+    const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
+
+    // Отправляем фото с подписью
+    await bot.telegram.sendPhoto(CHAT_ID, imageUrl, { caption: message });
+
+    return res.status(200).send("Сообщение отправлено с картинкой");
   } catch (error) {
     console.error("Ошибка:", error.message);
     return res.status(500).send("Ошибка при отправке сообщения");
