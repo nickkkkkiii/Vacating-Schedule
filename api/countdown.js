@@ -3,7 +3,8 @@ const { Telegraf } = require('telegraf');
 // === Конфигурация ===
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const TARGET_DATE_STR = "2025-11-10";
+const TARGET_DATE_STR = "2025-10-11";
+const BASE_IMAGE_URL = "https://your-app.vercel.app/images";
 
 // Инициализируем бота
 const bot = new Telegraf(BOT_TOKEN);
