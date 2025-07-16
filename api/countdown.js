@@ -222,7 +222,7 @@ if (diffDays > 90) {
     // Добавляем прогресс-бар после основного текста
     message += `
 
-${getProgressBar(TOTAL_DAYS, diffDays)}  (${TOTAL_DAYS - diffDays} / ${TOTAL_DAYS} дней прошли)
+${getProgressBar(TOTAL_DAYS, diffDays)}
 `;
 
     // Получаем погоду
