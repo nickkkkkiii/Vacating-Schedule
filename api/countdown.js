@@ -213,17 +213,20 @@ if (diffDays > 90) {
       `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ru`
     );
     const weatherData = await weatherRes.json();
+    console.log("OpenWeather ответ:", weatherData);
 
-    if (weatherData.weather) {
+    if (weatherData && weatherData.weather && weatherData.main) {
       const temp = weatherData.main.temp;
       const desc = weatherData.weather[0].description;
       const feels = weatherData.main.feels_like;
-      const cityName = weatherData.name;
+      const cityName = weatherData.name || CITY;
 
       message += `\n\n🌤️ Погода в ${cityName} сегодня:\n${desc}, ${temp}°C (ощущается как ${feels}°C)`;
+    } else {
+      console.warn("Погода не получена или данные некорректны:", weatherData);
     }
 
-    // Формируем URL картинки по diffDays
+    // Формируем URL картинки
     const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
 
     // Отправляем фото с подписью
