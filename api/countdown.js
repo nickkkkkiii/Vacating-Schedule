@@ -1,9 +1,12 @@
 const { Telegraf } = require('telegraf');
+const fetch = require('node-fetch');
 
 // === Конфигурация ===
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
 const TARGET_DATE_STR = "2025-10-11";
+const CITY = "Side,TR";
 
 // Инициализируем бота
 const bot = new Telegraf(BOT_TOKEN);
@@ -204,6 +207,21 @@ if (diffDays > 90) {
 } else {
   message = `🌴☀️ Поездка в Турцию уже началась! Пора отдыхать 🌴✈️`;
 }
+
+    // Получаем погоду
+    const weatherRes = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ru`
+    );
+    const weatherData = await weatherRes.json();
+
+    if (weatherData.weather) {
+      const temp = weatherData.main.temp;
+      const desc = weatherData.weather[0].description;
+      const feels = weatherData.main.feels_like;
+      const cityName = weatherData.name;
+
+      message += `\n\n🌤️ Погода в ${cityName} сегодня:\n${desc}, ${temp}°C (ощущается как ${feels}°C)`;
+    }
 
     // Формируем URL картинки по diffDays
     const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
