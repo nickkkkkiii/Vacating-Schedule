@@ -18,7 +18,7 @@ function getProgressBar(totalDays, daysLeft) {
   const emptyLength = barLength - filledLength;
   const filledBar = '█'.repeat(filledLength);
   const emptyBar = '░'.repeat(emptyLength);
-  return `[${filledBar}${emptyBar}]`;
+  return `${filledBar}${emptyBar}`;
 }
 
 module.exports = async (req, res) => {
