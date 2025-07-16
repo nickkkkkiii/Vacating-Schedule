@@ -214,14 +214,20 @@ if (diffDays > 90) {
     );
     const weatherData = await weatherRes.json();
     console.log("OpenWeather ответ:", weatherData);
+    const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
-    if (weatherData && weatherData.weather && weatherData.main) {
-      const temp = weatherData.main.temp;
-      const desc = weatherData.weather[0].description;
-      const feels = weatherData.main.feels_like;
-      const cityName = weatherData.name || CITY;
+    if (weatherData.weather) {
+      const temp = weatherData.main.temp.toFixed(1);
+      const descRaw = weatherData.weather[0].description;
+      const desc = capitalize(descRaw);
+      const feels = weatherData.main.feels_like.toFixed(1);
+      const cityName = weatherData.name;
 
-      message += `\n\n🌤️ Погода в ${cityName} сегодня:\n${desc}, ${temp}°C (ощущается как ${feels}°C)`;
+      message += `
+
+    🌤️ Погода в ${cityName} сегодня:
+    ${desc}, ${temp}°C (ощущается как ${feels}°C)
+    `;
     } else {
       console.warn("Погода не получена или данные некорректны:", weatherData);
     }
