@@ -11,12 +11,23 @@ const CITY = "Side,TR";
 // Инициализируем бота
 const bot = new Telegraf(BOT_TOKEN);
 
+// Функция для прогресс-бара
+function getProgressBar(totalDays, daysLeft) {
+  const barLength = 20;
+  const filledLength = Math.round(((totalDays - daysLeft) / totalDays) * barLength);
+  const emptyLength = barLength - filledLength;
+  const filledBar = '█'.repeat(filledLength);
+  const emptyBar = '░'.repeat(emptyLength);
+  return `[${filledBar}${emptyBar}]`;
+}
+
 module.exports = async (req, res) => {
   try {
     const targetDate = new Date(TARGET_DATE_STR);
     const today = new Date();
     const diffTime = targetDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const TOTAL_DAYS = 100; // общее количество дней, подкорректируй под себя
 
 let message;
 
@@ -208,6 +219,12 @@ if (diffDays > 90) {
   message = `🌴☀️ Поездка в Турцию уже началась! Пора отдыхать 🌴✈️`;
 }
 
+    // Добавляем прогресс-бар после основного текста
+    message += `
+
+${getProgressBar(TOTAL_DAYS, diffDays)}  (${TOTAL_DAYS - diffDays} / ${TOTAL_DAYS} дней прошли)
+`;
+
     // Получаем погоду
     const weatherRes = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ru`
@@ -216,21 +233,20 @@ if (diffDays > 90) {
     console.log("OpenWeather ответ:", weatherData);
     const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
-if (weatherData.weather) {
-  const temp = weatherData.main.temp.toFixed(1);
-  const descRaw = weatherData.weather[0].description;
-  const desc = capitalize(descRaw);
-  const feels = weatherData.main.feels_like.toFixed(1);
-  const cityName = weatherData.name;
+    if (weatherData.weather) {
+      const temp = weatherData.main.temp.toFixed(1);
+      const descRaw = weatherData.weather[0].description;
+      const desc = capitalize(descRaw);
+      const feels = weatherData.main.feels_like.toFixed(1);
+      const cityName = weatherData.name;
 
-  message += `
-
+      message += `
 🌤️ Погода в ${cityName} сегодня:
 ${desc}, ${temp}°C (ощущается как ${feels}°C)
 `;
-} else {
-  console.warn("Погода не получена или данные некорректны:", weatherData);
-}
+    } else {
+      console.warn("Погода не получена или данные некорректны:", weatherData);
+    }
 
     // Формируем URL картинки
     const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
