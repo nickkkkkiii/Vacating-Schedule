@@ -13,7 +13,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 // Функция для прогресс-бара
 function getProgressBar(totalDays, daysLeft) {
-  const barLength = 18;
+  const barLength = 16;
   const filledLength = Math.round(((totalDays - daysLeft) / totalDays) * barLength);
   const emptyLength = barLength - filledLength;
   const filledBar = '█'.repeat(filledLength);
