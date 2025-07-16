@@ -216,21 +216,21 @@ if (diffDays > 90) {
     console.log("OpenWeather ответ:", weatherData);
     const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
 
-    if (weatherData.weather) {
-      const temp = weatherData.main.temp.toFixed(1);
-      const descRaw = weatherData.weather[0].description;
-      const desc = capitalize(descRaw);
-      const feels = weatherData.main.feels_like.toFixed(1);
-      const cityName = weatherData.name;
+if (weatherData.weather) {
+  const temp = weatherData.main.temp.toFixed(1);
+  const descRaw = weatherData.weather[0].description;
+  const desc = capitalize(descRaw);
+  const feels = weatherData.main.feels_like.toFixed(1);
+  const cityName = weatherData.name;
 
-      message += `
+  message += `
 
-    🌤️ Погода в ${cityName} сегодня:
-    ${desc}, ${temp}°C (ощущается как ${feels}°C)
-    `;
-    } else {
-      console.warn("Погода не получена или данные некорректны:", weatherData);
-    }
+🌤️ Погода в ${cityName} сегодня:
+${desc}, ${temp}°C (ощущается как ${feels}°C)
+`;
+} else {
+  console.warn("Погода не получена или данные некорректны:", weatherData);
+}
 
     // Формируем URL картинки
     const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
