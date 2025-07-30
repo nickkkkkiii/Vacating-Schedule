@@ -106,10 +106,6 @@ module.exports = async (req, res) => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const TOTAL_DAYS = 100; // общее количество дней, подкорректируй под себя
     const phraseIndex = turkishPhrases.length - diffDays;
-if (phraseIndex >= 0 && phraseIndex < turkishPhrases.length) {
-  message += `\n\n📚 Турецкая фраза дня:\n${turkishPhrases[phraseIndex]}`;
-}
-
 
 let message;
 
@@ -299,6 +295,10 @@ if (diffDays > 90) {
   message = `🎉 Поездка в Турцию начинается сегодня! Пора собираться 🌴✈️`;
 } else {
   message = `🌴☀️ Поездка в Турцию уже началась! Пора отдыхать 🌴✈️`;
+}
+
+if (phraseIndex >= 0 && phraseIndex < turkishPhrases.length) {
+  message += `\n\n📚 Турецкая фраза дня:\n${turkishPhrases[phraseIndex]}`;
 }
 
     // Добавляем прогресс-бар после основного текста
