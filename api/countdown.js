@@ -104,7 +104,7 @@ module.exports = async (req, res) => {
     const today = new Date();
     const diffTime = targetDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const TOTAL_DAYS = 100; // общее количество дней, подкорректируй под себя
+    const TOTAL_DAYS = 99; // общее количество дней, подкорректируй под себя
     const phraseIndex = turkishPhrases.length - diffDays;
 
 let message;
