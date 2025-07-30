@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
-const TARGET_DATE_STR = "2025-10-11";
+const TARGET_DATE_STR = "2025-10-10";
 const CITY = "Side,TR";
 
 // Обучалка турецкому
@@ -104,7 +104,7 @@ module.exports = async (req, res) => {
     const today = new Date();
     const diffTime = targetDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const TOTAL_DAYS = 99; // общее количество дней, подкорректируй под себя
+    const TOTAL_DAYS = 100; // общее количество дней, подкорректируй под себя
     const phraseIndex = turkishPhrases.length - diffDays;
 
 let message;
