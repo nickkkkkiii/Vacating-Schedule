@@ -383,12 +383,10 @@ if (diffDays > 90) {
       const testMessage = `Тест 17 дня: ${diffDays} дней до Турции\nПростое сообщение для диагностики`;
       
       try {
-        console.log('🔄 Попытка отправки упрощенного сообщения...');
-        await bot.telegram.sendPhoto(CHAT_ID, imageUrl, { 
-          caption: testMessage,
-          parse_mode: 'HTML' // Пробуем другой parse_mode
-        });
-        console.log('✅ Упрощенное сообщение отправлено успешно');
+        const testImageUrl = `https://schedular-vacating.vercel.app/images/16.jpg`;
+        console.log('🔄 ТЕСТ: Используем изображение 16 дня вместо 17');
+
+        await bot.telegram.sendPhoto(CHAT_ID, testImageUrl, { caption: message });
       } catch (simpleError) {
         console.error('❌ Ошибка с упрощенным сообщением:', simpleError.message);
         
