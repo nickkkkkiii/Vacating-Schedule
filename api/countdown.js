@@ -16,7 +16,7 @@ const turkishPhrases = [
   "Adınız ne? - [Адыныз не] - Как вас зовут?",
   "Benim adım Olesya. - [Бэним адым Олеся] - Меня зовут Олеся.",
   "Memnun oldum. - [Мемнун олдум] - Приятно познакомиться.",
-  "İngilizce biliyor musunuz? - [Ингили́здже билийо́р мусуну́з] - Вы говорите по-английски?",
+  "İngilizce biliyor musunuz? - [Ингили́здже билийо́ор мусуну́з] - Вы говорите по-английски?",
   "Türkçe bilmiyorum. - [Тюркче бильмйо́рум] - Я не говорю по-турецки.",
   "Yavaş konuşur musunuz? - [Яваш конушу́р мусуну́з] - Говорите помедленнее, пожалуйста.",
   "Bu ne kadar? - [Бу не кадар] - Сколько это стоит?",
@@ -99,16 +99,43 @@ function getProgressBar(totalDays, daysLeft) {
 }
 
 module.exports = async (req, res) => {
+  // Устанавливаем правильный content-type для Vercel
+  res.setHeader('Content-Type', 'application/json');
+  
+  console.log('=== НАЧАЛО ВЫПОЛНЕНИЯ CRON JOB ===');
+  console.log('Время запуска:', new Date().toISOString());
+
   try {
+    // === ДИАГНОСТИКА ПЕРЕМЕННЫХ ОКРУЖЕНИЯ ===
+    console.log('🔧 Проверка переменных окружения:');
+    console.log('- BOT_TOKEN exists:', !!BOT_TOKEN);
+    console.log('- CHAT_ID exists:', !!CHAT_ID);
+    console.log('- OPENWEATHER_API_KEY exists:', !!OPENWEATHER_API_KEY);
+    console.log('- CHAT_ID value:', CHAT_ID);
+
+    if (!BOT_TOKEN || !CHAT_ID) {
+      throw new Error('Отсутствуют обязательные переменные окружения');
+    }
+
+    // === РАСЧЕТ ДНЕЙ ===
     const targetDate = new Date(TARGET_DATE_STR);
     const today = new Date();
     const diffTime = targetDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const TOTAL_DAYS = 100; // общее количество дней, подкорректируй под себя
+    const TOTAL_DAYS = 100;
     const phraseIndex = turkishPhrases.length - diffDays;
 
-let message;
+    console.log('📅 Расчет дней:');
+    console.log('- Целевая дата:', targetDate.toISOString());
+    console.log('- Сегодня:', today.toISOString());
+    console.log('- Дней осталось:', diffDays);
+    console.log('- Индекс фразы:', phraseIndex);
+    console.log('- Всего фраз:', turkishPhrases.length);
 
+    // === ФОРМИРОВАНИЕ СООБЩЕНИЯ ===
+    let message;
+
+    // Ваш большой блок if-else условий
 if (diffDays > 90) {
   message = `🗓️ До поездки в Турцию осталось больше 90 дней!\n\nСамое время начать планировать маршрут и бронировать отель 🏨🧳`;
 } else if (diffDays === 90) {
@@ -297,48 +324,113 @@ if (diffDays > 90) {
   message = `🌴☀️ Поездка в Турцию уже началась! Пора отдыхать 🌴✈️`;
 }
 
-if (phraseIndex >= 0 && phraseIndex < turkishPhrases.length) {
-  message += `\n\n📚 Турецкая фраза дня:\n${turkishPhrases[phraseIndex]}`;
-}
+    console.log('📝 Базовое сообщение сформировано. Длина:', message.length);
 
-    // Добавляем прогресс-бар после основного текста
-    message += `
-
-${getProgressBar(TOTAL_DAYS, diffDays)}
-`;
-
-    // Получаем погоду
-    const weatherRes = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ru`
-    );
-    const weatherData = await weatherRes.json();
-    console.log("OpenWeather ответ:", weatherData);
-    const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
-
-    if (weatherData.weather) {
-      const temp = weatherData.main.temp.toFixed(1);
-      const descRaw = weatherData.weather[0].description;
-      const desc = capitalize(descRaw);
-      const feels = weatherData.main.feels_like.toFixed(1);
-      const cityName = weatherData.name;
-
-      message += `
-🌤️ Погода в ${cityName} сегодня:
-${desc}, ${temp}°C (ощущается как ${feels}°C)
-`;
+    // === ДОБАВЛЕНИЕ ТУРЕЦКОЙ ФРАЗЫ ===
+    if (phraseIndex >= 0 && phraseIndex < turkishPhrases.length) {
+      const turkishPhrase = turkishPhrases[phraseIndex];
+      console.log('🇹🇷 Добавляем турецкую фразу:', turkishPhrase.substring(0, 50) + '...');
+      message += `\n\n📚 Турецкая фраза дня:\n${turkishPhrase}`;
     } else {
-      console.warn("Погода не получена или данные некорректны:", weatherData);
+      console.log('⚠️  Индекс фразы вне диапазона, пропускаем');
     }
 
-    // Формируем URL картинки
+    // === ДОБАВЛЕНИЕ ПРОГРЕСС-БАРА ===
+    const progressBar = getProgressBar(TOTAL_DAYS, diffDays);
+    message += `\n\n${progressBar}`;
+    console.log('📊 Прогресс-бар добавлен');
+
+    // === ПОЛУЧЕНИЕ ПОГОДЫ ===
+    console.log('🌤️  Запрос погоды для города:', CITY);
+    try {
+      const weatherRes = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ru`
+      );
+      
+      if (weatherRes.ok) {
+        const weatherData = await weatherRes.json();
+        console.log('✅ Погода получена успешно');
+        
+        if (weatherData.weather && weatherData.weather.length > 0) {
+          const temp = weatherData.main.temp.toFixed(1);
+          const descRaw = weatherData.weather[0].description;
+          const desc = descRaw.charAt(0).toUpperCase() + descRaw.slice(1);
+          const feels = weatherData.main.feels_like.toFixed(1);
+          const cityName = weatherData.name;
+
+          message += `\n\n🌤️ Погода в ${cityName} сегодня:\n${desc}, ${temp}°C (ощущается как ${feels}°C)`;
+          console.log('🌡️  Данные погоды добавлены в сообщение');
+        }
+      } else {
+        console.warn('⚠️  Ошибка получения погоды:', weatherRes.status);
+      }
+    } catch (weatherError) {
+      console.warn('⚠️  Ошибка при запросе погоды:', weatherError.message);
+    }
+
+    console.log('📏 Финальная длина сообщения:', message.length);
+    console.log('👀 Превью сообщения:', message.substring(0, 200) + '...');
+
+    // === ОТПРАВКА В TELEGRAM ===
     const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
+    console.log('🖼️  URL изображения:', imageUrl);
 
-    // Отправляем фото с подписью
-    await bot.telegram.sendPhoto(CHAT_ID, imageUrl, { caption: message });
+    // Особенная обработка для 17 дня
+    if (diffDays === 17) {
+      console.log('⚠️  ОБНАРУЖЕН 17 ДЕНЬ - ОСОБАЯ ОБРАБОТКА');
+      
+      // Вариант 1: Пробуем отправить с упрощенным сообщением
+      const testMessage = `Тест 17 дня: ${diffDays} дней до Турции\nПростое сообщение для диагностики`;
+      
+      try {
+        console.log('🔄 Попытка отправки упрощенного сообщения...');
+        await bot.telegram.sendPhoto(CHAT_ID, imageUrl, { 
+          caption: testMessage,
+          parse_mode: 'HTML' // Пробуем другой parse_mode
+        });
+        console.log('✅ Упрощенное сообщение отправлено успешно');
+      } catch (simpleError) {
+        console.error('❌ Ошибка с упрощенным сообщением:', simpleError.message);
+        
+        // Вариант 2: Пробуем отправить только текст
+        try {
+          console.log('🔄 Попытка отправки только текста...');
+          await bot.telegram.sendMessage(CHAT_ID, message);
+          console.log('✅ Текстовое сообщение отправлено успешно');
+        } catch (textError) {
+          console.error('❌ Ошибка с текстовым сообщением:', textError.message);
+          throw textError;
+        }
+      }
+    } else {
+      // Стандартная обработка для всех других дней
+      console.log('🔄 Отправка стандартного сообщения...');
+      await bot.telegram.sendPhoto(CHAT_ID, imageUrl, { caption: message });
+      console.log('✅ Сообщение отправлено успешно');
+    }
 
-    return res.status(200).send("Сообщение отправлено с картинкой");
+    console.log('=== ВЫПОЛНЕНИЕ УСПЕШНО ЗАВЕРШЕНО ===');
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: "Сообщение отправлено с картинкой",
+      daysLeft: diffDays,
+      timestamp: new Date().toISOString()
+    });
+    
   } catch (error) {
-    console.error("Ошибка:", error.message);
-    return res.status(500).send("Ошибка при отправке сообщения");
+    console.error('=== КРИТИЧЕСКАЯ ОШИБКА ===');
+    console.error('Тип ошибки:', error.constructor.name);
+    console.error('Сообщение ошибки:', error.message);
+    console.error('Стек вызовов:', error.stack);
+    console.error('=== КОНЕЦ ОШИБКИ ===');
+
+    return res.status(500).json({ 
+      success: false, 
+      error: "Ошибка при отправке сообщения",
+      details: error.message,
+      daysLeft: diffDays || 'unknown',
+      timestamp: new Date().toISOString()
+    });
   }
 };
