@@ -1,23 +1,7 @@
+
 {
-  "headers": [
-    {
-      "source": "/images/17.jpg",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "image/jpeg"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
-        }
-      ],
-      "crons": [
-        {
-          "path": "/api/countdown",
-          "schedule": "0 6 * * *"
-        }
-      ]
-    }
-  ]
+  "crons": [{
+    "path": "/api/countdown",
+    "schedule": "0 6 * * *"
+  }]
 }
