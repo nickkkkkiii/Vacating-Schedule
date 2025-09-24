@@ -99,6 +99,7 @@ function getProgressBar(totalDays, daysLeft) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   try {
     const targetDate = new Date(TARGET_DATE_STR);
     const today = new Date();
@@ -333,12 +334,21 @@ ${desc}, ${temp}°C (ощущается как ${feels}°C)
     // Формируем URL картинки
     const imageUrl = `https://schedular-vacating.vercel.app/images/${diffDays}.jpg`;
 
-    // Отправляем фото с подписью
-    await bot.telegram.sendPhoto(CHAT_ID, imageUrl, { caption: message });
+    // ВМЕСТО отправки фото - отправляем ТОЛЬКО текст
+    await bot.telegram.sendMessage(CHAT_ID, message);
 
-    return res.status(200).send("Сообщение отправлено с картинкой");
+    return res.status(200).json({ 
+      success: true, 
+      message: "Текстовое сообщение отправлено",
+      daysLeft: diffDays 
+    });
+    
   } catch (error) {
     console.error("Ошибка:", error.message);
-    return res.status(500).send("Ошибка при отправке сообщения");
+    return res.status(500).json({ 
+      success: false, 
+      error: "Ошибка при отправке сообщения",
+      details: error.message 
+    });
   }
 };
